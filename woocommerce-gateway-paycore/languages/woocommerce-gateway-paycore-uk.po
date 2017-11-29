@@ -1,0 +1,330 @@
+# Copyright (C) 2017 WooCommerce PayCore.io Gateway
+# This file is distributed under the same license as the WooCommerce PayCore.io Gateway package.
+msgid ""
+msgstr ""
+
+
+"Project-Id-Version: WooCommerce PayCore.io Gateway 3.2.3\n"
+"Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/woocommerce-"
+"gateway-paycore\n"
+"POT-Creation-Date: 2017-11-23 15:17:09+00:00\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"PO-Revision-Date: 2017-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+
+#: includes/class-wc-gateway-paycore.php:64
+#: includes/legacy/class-wc-gateway-paycore.php:20
+msgid "PayCore.io"
+msgstr ""
+
+
+#: includes/class-wc-gateway-paycore.php:65
+#: includes/legacy/class-wc-gateway-paycore.php:21
+msgid ""
+"PayCore.io works by adding chosen payment methods on the checkout and then "
+"proceed payment with PayCore.io checkout. <a href=\"%1$s\" target=\"_blank"
+"\">Sign up</a> for a PayCore.io account, and <a href=\"%2$s\" target=\"_blank"
+"\">get your PayCore.io account keys</a>."
+msgstr ""
+"PayCore.io добавляет выбранные Вами методы оплаты на страницу оплаты, "
+"а затем обрабатывает платеж на платежной странице PayCore.io. Чтобы начать, "
+"<a href=\"%1$s\" target=\"_blank"
+"\">войдите</a> в ваш PayCore.io аккаунт, и введите ниже ключи от вашей"
+" <a href=\"%2$s\" target=\"_blank\">платежной страницы PayCore.io</a>."
+
+#: includes/class-wc-gateway-paycore.php:103
+#: includes/legacy/class-wc-gateway-paycore.php:61
+msgid "TEST MODE ENABLED."
+msgstr "ВКЛЮЧЕН ТЕСТОВЫЙ РЕЖИМ"
+
+#: includes/class-wc-gateway-paycore.php:193
+#: includes/legacy/class-wc-gateway-paycore.php:150
+msgid "PayCore.io error: Please enter your secret key <a href=\"%s\">here</a>"
+msgstr "PayCore.io ошибка: Пожалуйста, введите ваш секретний ключ <a href=\"%s\">здесь</a>"
+
+#: includes/class-wc-gateway-paycore.php:197
+#: includes/legacy/class-wc-gateway-paycore.php:154
+msgid ""
+"PayCore.io error: Please enter your publishable key <a href=\"%s\">here</a>"
+msgstr ""
+"PayCore.io ошибка: Пожалуйста введите ваш публичный ключ <a href=\"%s\">здесь</a>"
+
+#: includes/class-wc-gateway-paycore.php:251
+#: includes/legacy/class-wc-gateway-paycore.php:208
+msgid "Payment methods"
+msgstr "Платежные методы"
+
+#: includes/class-wc-gateway-paycore.php:255
+msgid "Favourites"
+msgstr "Избранные"
+
+#: includes/class-wc-gateway-paycore.php:269
+msgid "Others"
+msgstr "Другое"
+
+#: includes/class-wc-gateway-paycore.php:203
+#: includes/legacy/class-wc-gateway-paycore.php:160
+msgid ""
+"PayCore.io error: Your secret and publishable keys match. Please check and re-"
+"enter."
+msgstr ""
+"PayCore.io ошибка: Ваши секретный и публичный ключи совпадают. Пожалуйста, проверьте"
+"и введите заново."
+
+#: includes/class-wc-gateway-paycore.php:384
+msgid ""
+"This is not a valid live key. Live keys start with \"sk_live_\" and "
+"\"pk_live_\"."
+msgstr ""
+"Вы ввели неправильный живой ключ. Живые ключи начинаются с \"sk_live_\" и "
+"\"pk_live_\"."
+
+#: includes/class-wc-gateway-paycore.php:385
+msgid ""
+"This is not a valid test key. Test keys start with \"sk_test_\" and "
+"\"pk_test_\"."
+msgstr ""
+"Вы ввели неправильный тестовый ключ. Тестовые ключи начинаются с \"sk_test_\" and "
+"\"pk_test_\"."
+
+#: includes/class-wc-gateway-paycore.php:386
+msgid "Re-verify Domain"
+msgstr "Проверьте домен"
+
+
+#: includes/class-wc-gateway-paycore.php:387
+msgid "Missing Secret Key. Please set the secret key field above and re-try."
+msgstr "Секретный ключ не указан. Пожалуйста, укажите секретный ключ и повторите снова."
+
+
+#: includes/class-wc-gateway-paycore.php:414
+#: includes/legacy/class-wc-gateway-paycore.php:340
+msgid "Please accept the terms and conditions first"
+msgstr "Сначала приймите \"Правила и условия\""
+
+#: includes/class-wc-gateway-paycore.php:415
+#: includes/legacy/class-wc-gateway-paycore.php:341
+msgid "Please fill in required checkout fields first"
+msgstr "Пожалуйста заполните обязательные поля"
+
+#: includes/class-wc-gateway-paycore.php:469
+#: includes/legacy/class-wc-gateway-paycore.php:390
+msgid "Start process payment for order: %s"
+msgstr "Начало обработки платежа для заказа: %s"
+
+#: includes/class-wc-gateway-paycore.php:481
+#: includes/class-wc-gateway-paycore.php:530
+#: includes/legacy/class-wc-gateway-paycore.php:402
+#: includes/legacy/class-wc-gateway-paycore.php:452
+msgid "Error: %s"
+msgstr "Ошибка: %s"
+
+#: includes/class-wc-gateway-paycore.php:506
+#: includes/legacy/class-wc-gateway-paycore.php:427
+msgid "Retrieve IPN for order: %s. Payment status: %s"
+msgstr "Получено IPN сообщение для заказа: %s. Статус платежа %s."
+
+#: includes/legacy/class-wc-gateway-paycore.php:433
+#: includes/class-wc-gateway-paycore.php:512
+msgid "Payment is successfully processed by PayCore.io"
+msgstr "Платеж успешно оплачен через PayCore.io"
+
+#: includes/legacy/class-wc-gateway-paycore.php:57
+msgid "Continue to payment"
+msgstr "Оплатить"
+
+
+#: includes/settings-paycore.php:9
+msgid "Enable/Disable"
+msgstr "Включить/Выключить"
+
+
+#: includes/settings-paycore.php:10
+msgid "Enable PayCore.io"
+msgstr "Включить PayCore.io"
+
+
+#: includes/settings-paycore.php:16
+msgid "Title"
+msgstr "Название"
+
+
+#: includes/settings-paycore.php:18
+msgid "This controls the title which the user sees during checkout."
+msgstr "Это название которое видят пользователи на странице оплаты."
+
+
+#: includes/settings-paycore.php:19
+msgid "Cashless payments (PayCore.io)"
+msgstr "Безналичные платежи (PayCore.io)"
+
+
+#: includes/settings-paycore.php:23
+msgid "Description"
+msgstr "Описание"
+
+
+#: includes/settings-paycore.php:25
+msgid "This controls the description which the user sees during checkout."
+msgstr "Это описание которое видит пользователь вовремя оплаты"
+
+
+#: includes/settings-paycore.php:26
+msgid "Pay cashless via PayCore.io."
+msgstr "Плати безналичными через PayCore.io."
+
+
+#: includes/settings-paycore.php:30
+msgid "Test mode"
+msgstr "Тестовый режим"
+
+
+#: includes/settings-paycore.php:31
+msgid "Enable Test Mode"
+msgstr "Включить тестовый режим"
+
+
+#: includes/settings-paycore.php:33
+msgid "Place the payment gateway in test mode using test API keys."
+msgstr "Активировать тестовый режим для платежного шлюза, использую тестовые ключи."
+
+
+#: includes/settings-paycore.php:38
+msgid "Test Publishable Key"
+msgstr "Тестовый публичный ключ"
+
+
+#: includes/settings-paycore.php:40 includes/settings-paycore.php:47
+#: includes/settings-paycore.php:54 includes/settings-paycore.php:61
+msgid "Get your API keys from your PayCore.io account."
+msgstr "API ключи из вашего аккаунта на PayCore.io."
+
+
+#: includes/settings-paycore.php:45
+msgid "Test Secret Key"
+msgstr "Тестовый секретный ключ"
+
+
+#: includes/settings-paycore.php:52
+msgid "Live Publishable Key"
+msgstr "Живой публичный ключ"
+
+
+#: includes/settings-paycore.php:59
+msgid "Live Secret Key"
+msgstr "Живой секретный ключ"
+
+
+#: includes/settings-paycore.php:66
+msgid "Available payment methods"
+msgstr "Доступные платежные методы"
+
+
+#: includes/settings-paycore.php:68
+msgid "Select available payment methods."
+msgstr "Выберите методы, которые будут показываться на страничке оплаты"
+
+
+#: includes/settings-paycore.php:71
+msgid "Statement Descriptor"
+msgstr "Метка"
+
+
+#: includes/settings-paycore.php:73
+msgid ""
+"Extra information about a charge."
+msgstr "Дополнительная информация о платеже."
+
+
+#: includes/settings-paycore.php:78
+msgid "Logging"
+msgstr "Логирование"
+
+
+#: includes/settings-paycore.php:79
+msgid "Log debug messages"
+msgstr "Логировать сообщения отладки"
+
+
+#: includes/settings-paycore.php:81
+msgid "Save debug messages to the WooCommerce System Status log."
+msgstr "Сохраняет сообщения отладки в системный журнал соостояния WooCommerce"
+
+
+#: woocommerce-gateway-paycore.php:157
+msgid ""
+"PayCore.io is almost ready. To get started, <a href=\"%s\">set your PayCore.io "
+"account keys</a>."
+msgstr ""
+"PayCore.io практически готов. Для начала работы, <a href=\"%s\">укажите "
+"ключи</a> от платежной страницы PayCore.io ."
+
+#: woocommerce-gateway-paycore.php:205
+msgid ""
+"WooCommerce PayCore.io - The minimum PHP version required for this plugin is "
+"%1$s. You are running %2$s."
+msgstr ""
+"WooCommerce PayCore.io - Минимальная версия PHP необходимая для работы плагина - "
+"%1$s. Вы используете - %2$s."
+
+#: woocommerce-gateway-paycore.php:211
+msgid "WooCommerce PayCore.io requires WooCommerce to be activated to work."
+msgstr "WooCommerce PayCore.io необходим активированный WooCommerce для работы."
+
+
+#: woocommerce-gateway-paycore.php:215
+msgid ""
+"WooCommerce PayCore.io - The minimum WooCommerce version required for this "
+"plugin is %1$s. You are running %2$s."
+msgstr ""
+"WooCommerce PayCore.io - Минимальная версия WooCommerce необходимая для работы плагина - "
+"%1$s. Вы используете - %2$s."
+
+#: woocommerce-gateway-paycore.php:221
+msgid "WooCommerce PayCore.io - cURL is not installed."
+msgstr "WooCommerce PayCore.io - cURL не установлен."
+
+
+#: woocommerce-gateway-paycore.php:236
+msgid "Settings"
+msgstr "Настройки"
+
+
+#: woocommerce-gateway-paycore.php:237
+msgid "Docs"
+msgstr "Документация"
+
+
+#: woocommerce-gateway-paycore.php:238
+msgid "Support"
+msgstr "Поддержка"
+
+
+#. Plugin Name of the plugin/theme
+msgid "WooCommerce PayCore.io Gateway"
+msgstr "WooCommerce PayCore.io платежи"
+
+
+#. Plugin URI of the plugin/theme
+msgid "https://wordpress.org/plugins/woocommerce-gateway-/"
+msgstr ""
+
+
+#. Description of the plugin/theme
+msgid "Take cashless payments on your store using PayCore.io."
+msgstr "Принимает платежи на вашем сайте используя PayCore.io."
+
+
+#. Author of the plugin/theme
+msgid "PayMaxi"
+msgstr ""
+
+
+#. Author URI of the plugin/theme
+msgid "https://woocommerce.com/"
+msgstr ""
+
+
