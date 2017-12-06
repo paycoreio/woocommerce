@@ -10,7 +10,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  */
 class WC_Gateway_Paycore extends WC_Payment_Gateway {
 
-    const PAYCORE_CHECKOUT_URL = 'http://checkout.paycore.io/api/%s/payment-methods';
+    const PAYCORE_CHECKOUT_URL = 'http://checkout.dev.paycore.io/api/%s/payment-methods';
 
     private static $secret_key;
     /**
@@ -52,6 +52,7 @@ class WC_Gateway_Paycore extends WC_Payment_Gateway {
 
         self::$secret_key             = $this->testmode ? $this->get_option( 'test_secret_key' ) : $this->get_option( 'secret_key' );
         $this->publishable_key        = $this->testmode ? $this->get_option( 'test_publishable_key' ) : $this->get_option( 'publishable_key' );
+        $this->payment_methods        = $this->get_option('payment_methods');
         $this->logging                = 'yes' === $this->get_option( 'logging' );
 
         if ( $this->paycore_checkout ) {
@@ -217,12 +218,14 @@ class WC_Gateway_Paycore extends WC_Payment_Gateway {
 
     /**
      * @param $key
-     * @param $value
      * @return array
      */
-    public function validate_payment_methods_field($key, $value)
+    public function validate_payment_methods_field($key)
     {
-        return is_array($value) ? $value : [];
+        $key = $this->get_field_key($key);
+        $data = is_array($_POST[$key]) ? $_POST[$key] : [];
+
+        return $data;
     }
 
     /**
@@ -415,21 +418,46 @@ class WC_Gateway_Paycore extends WC_Payment_Gateway {
 
     /**
      * Process the payment
+     *
+     * @param int  $order_id Reference.
+     * @param bool $retry Should we retry on fail.
+     * @param bool $force_customer Force user creation.
+     *
+     * @throws Exception If payment will not be accepted.
+     *
+     * @return array
      */
     public function process_payment( $order_id, $retry = true, $force_customer = false ) {
         global $woocommerce;
+
         try {
             $this->log( sprintf( __( 'Start process payment for order: %s', 'woocommerce-gateway-paycore' ), $order_id ) );
-            $order  = wc_get_order( $order_id );
-            $returnUrl = $this->get_return_url($order);
 
+            $order  = wc_get_order( $order_id );
+            $ipnUrl = add_query_arg('wc-api', 'wc_gateway_paycore', home_url('/'));
+            $returnUrl = $this->get_return_url($order);
             $woocommerce->cart->empty_cart();
+
+            $data = [
+                'amount' => $this->get_paycore_amount($order->get_total()),
+                'currency' => strtoupper( get_woocommerce_currency() ),
+                'public_key' => $this->publishable_key,
+                'payment_method' => $_POST['payment_method'],
+                'reference' => strval($order->id),
+                'return_url' => $returnUrl,
+            ];
+
+            if (!empty($ipnUrl)) {
+                $data['ipn_url'] = $ipnUrl;
+            }
+
+            $dataString = self::encodeData($data);
+            $signature = $this->generateDataSignature($data);
 
             return array(
                 'result'   => 'success',
-                'orderId' => $order->id,
-                'returnUrl' => $returnUrl,
-                'ipnUrl' => add_query_arg('wc-api', 'wc_gateway_paycore', home_url('/'))
+                'data' => $dataString,
+                'signature' => $signature,
             );
         } catch ( Exception $e ) {
             wc_add_notice( $e->getMessage(), 'error' );
@@ -451,16 +479,38 @@ class WC_Gateway_Paycore extends WC_Payment_Gateway {
     /**
      * Store extra meta data for an order from a Paycore Response.
      */
-    public function process_response( $response, $order ) {
+    public function process_response( $response ) {
         $body = json_decode(file_get_contents('php://input', 'rb'), true);
 
-        $orderId = $body['reference'];
+        if (!(isset($body['data']) && isset($body['signature']))) {
+            $this->log( sprintf( __( 'Error: In the response from PayCore.io server there are no POST parameters "data" and "signature"', 'woocommerce-gateway-paycore' )) );
+
+            return null;
+        }
+
+        $data = $body['data'];
+        $receivedSignature = $body['signature'];
+
+
+        // DON'T delete this block, be careful of fraud!!!
+        if (!$this->securityOrderCheck($data, $receivedSignature)) {
+            $this->log( sprintf( __( 'Error: Signature check failed. WARNING be careful of fraud', 'woocommerce-gateway-paycore' )) );
+
+            return null;
+        }
+
+        $decodedData = $this->getDecodedData($data);
+        $status = $decodedData['state'];
+        $orderId = $decodedData['reference'];
 
         try {
             $this->log( sprintf( __( 'Retrieve IPN for order: %s. Payment status: %s', 'woocommerce-gateway-paycore' ), $orderId, $body['state'] ) );
             $order  = wc_get_order( $orderId );
 
-            switch ($body['state']) {
+            if(!$order->needs_payment() && $status !== 'success') {
+                return $response;
+            }
+            switch ($status) {
                 case 'success':
                     $order->payment_complete();
                     $order->add_order_note(__('Payment is successfully processed by PayCore.io', 'woocommerce-gateway-paycore'));
@@ -484,6 +534,59 @@ class WC_Gateway_Paycore extends WC_Payment_Gateway {
         }
 
         return $response;
+    }
+
+    /**
+     * @param $data
+     * @return mixed
+     */
+    public function getDecodedData($data)
+    {
+        return json_decode(base64_decode($data), true, 1024);
+    }
+
+    /**
+     * @param $data
+     * @return string
+     */
+    public static function encodeData($data)
+    {
+        return base64_encode(json_encode($data));
+    }
+
+    /**
+     * @param $data
+     * @param $receivedSignature
+     * @return bool
+     */
+    public function securityOrderCheck($data, $receivedSignature)
+    {
+        $secretKey = self::get_secret_key();
+        $generatedSignature = base64_encode(sha1( $secretKey . $data . $secretKey, 1));
+
+        return $receivedSignature === $generatedSignature;
+    }
+
+    /**
+     * @param $data array
+     * @return string
+     */
+    public function generateDataSignature($data)
+    {
+        $secretKey = self::get_secret_key();
+        $encodedData = self::encodeData($data);
+        $signature = self::generateStringSignature($secretKey . $encodedData . $secretKey);
+
+        return $signature;
+    }
+
+    /**
+     * @param $string
+     * @return string
+     */
+    public static function generateStringSignature($string)
+    {
+        return base64_encode(sha1($string, 1));
     }
 
     /**

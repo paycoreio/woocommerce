@@ -30,9 +30,7 @@ jQuery( function( $ ) {
 					this.onSubmit
 				);
 
-			debugger;
             if ( wc_paycore_params.legacy ) {
-            	console.log('titit');
                 $( 'form.woocommerce-checkout' )
                     .on(
                         'submit',
@@ -128,39 +126,31 @@ jQuery( function( $ ) {
 			if ( wc_paycore_form.isPaycoreChosen() && ! wc_paycore_form.hasToken() ) {
                 e.preventDefault();
                 wc_paycore_form.block();
+
+                var data = wc_paycore_form.form.serialize();
+
+                var paycorePaymentMethod = $('input[name="paycore_payment_method"]:checked').attr('value');
+                if (paycorePaymentMethod) {
+                    data += '&paycore-payment-method=' + paycorePaymentMethod;
+                }
+
 				$.ajax({
                     type:		'POST',
                     url:		wc_checkout_params.checkout_url,
-                    data:		wc_paycore_form.form.serialize(),
+                    data:		data,
                     dataType:   'json',
                     success:	function( result ) {
                         try {
                             if ( 'success' === result.result ) {
-                                if (result.orderId !== undefined) {
-                                	var paymentData = $('#paycore-payment-data');
-                                    var form = $('<form></form>');
-                                    form.attr('method', 'post');
-                                    form.attr('action', 'http://checkout.paycore.io');
-                                    form.attr('id', 'redirect_form');
-                                    form.append('<input type="hidden" name="amount" value="' + paymentData.attr('data-amount') + '">');
-                                    form.append('<input type="hidden" name="currency" value="' + paymentData.attr('data-currency').toUpperCase() + '">');
-                                    form.append('<input type="hidden" name="public_key" value="' + paymentData.attr('data-public-key') + '">');
-                                    form.append('<input type="hidden" name="payment_method" value="' + $('input[name="paycore_payment_method"]:checked').attr('value') + '">');
-                                    form.append('<input type="hidden" name="reference" value="' + result.orderId + '">');
+								var form = $('<form></form>');
+								form.attr('method', 'post');
+								form.attr('action', 'http://checkout.dev.paycore.io');
+								form.attr('id', 'redirect_form');
+								form.append('<input type="hidden" name="signature" value="' + result.signature + '">');
+								form.append('<input type="hidden" name="data" value="' + result.data + '">');
 
-                                    if (result.returnUrl !== undefined) {
-                                        form.append('<input type="hidden" name="return_url" value="' + result.returnUrl + '">');
-									}
-
-                                    if (result.ipnUrl !== undefined) {
-                                        form.append('<input type="hidden" name="ipn_url" value="' + result.ipnUrl + '">');
-                                    }
-
-                                    $('body').append(form);
-                                    form.submit();
-                                }
-
-                                return false;
+								$('body').append(form);
+								form.submit();
                             } else if ( 'failure' === result.result ) {
                                 throw 'Result failure';
                             } else {

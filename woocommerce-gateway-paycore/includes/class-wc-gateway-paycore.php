@@ -13,7 +13,7 @@ class WC_Gateway_Paycore extends WC_Payment_Gateway_CC {
     /**
      *
      */
-    const PAYCORE_CHECKOUT_URL = 'http://checkout.paycore.io/api/%s/payment-methods';
+    const PAYCORE_CHECKOUT_URL = 'http://checkout.dev.paycore.io/api/%s/payment-methods';
 	/**
 	 * Alternate credit card statement name
 	 *
@@ -406,7 +406,7 @@ class WC_Gateway_Paycore extends WC_Payment_Gateway_CC {
 			return;
 		}
 
-		$suffix = '';//defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG ? '' : '.min';
+		$suffix = defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG ? '' : '.min';
         wp_enqueue_script( 'woocommerce_paycore', plugins_url( 'assets/js/paycore' . $suffix . '.js', WC_PAYCORE_MAIN_FILE ), array( 'jquery-payment'), WC_PAYCORE_VERSION);
 
 
@@ -470,15 +470,32 @@ class WC_Gateway_Paycore extends WC_Payment_Gateway_CC {
 
 		try {
 		    $this->log( sprintf( __( 'Start process payment for order: %s', 'woocommerce-gateway-paycore' ), $order_id ) );
+
 			$order  = wc_get_order( $order_id );
+            $ipnUrl = add_query_arg('wc-api', 'wc_gateway_paycore', home_url('/'));
             $returnUrl = $this->get_return_url($order);
             $woocommerce->cart->empty_cart();
 
+            $data = [
+                'amount' => $this->get_paycore_amount($order->get_total()),
+                'currency' => strtoupper( get_woocommerce_currency() ),
+                'public_key' => $this->publishable_key,
+                'payment_method' => $_POST['payment_method'],
+                'reference' => strval($order->get_id()),
+                'return_url' => $returnUrl,
+            ];
+
+            if (!empty($ipnUrl)) {
+                $data['ipn_url'] = $ipnUrl;
+            }
+
+            $dataString = self::encodeData($data);
+            $signature = $this->generateDataSignature($data);
+
 			return array(
 				'result'   => 'success',
-                'orderId' => $order->get_id(),
-                'returnUrl' => $returnUrl,
-                'ipnUrl' => add_query_arg('wc-api', 'wc_gateway_paycore', home_url('/'))
+                'data' => $dataString,
+                'signature' => $signature,
 			);
 		} catch ( Exception $e ) {
 			wc_add_notice( $e->getMessage(), 'error' );
@@ -497,19 +514,41 @@ class WC_Gateway_Paycore extends WC_Payment_Gateway_CC {
 		}
 	}
 
-	/**
-	 * Store extra meta data for an order from a Paycore Response.
-	 */
-	public function process_response( $response, $order ) {
-	    $body = json_decode(file_get_contents('php://input', 'rb'), true);
+    /**
+     * Store extra meta data for an order from a Paycore Response.
+     */
+    public function process_response( $response ) {
+        $body = json_decode(file_get_contents('php://input', 'rb'), true);
 
-	    $orderId = $body['reference'];
+        if (!(isset($body['data']) && isset($body['signature']))) {
+            $this->log( sprintf( __( 'Error: In the response from PayCore.io server there are no POST parameters "data" and "signature"', 'woocommerce-gateway-paycore' )) );
+
+            return null;
+        }
+
+        $data = $body['data'];
+        $receivedSignature = $body['signature'];
+
+
+        // DON'T delete this block, be careful of fraud!!!
+        if (!$this->securityOrderCheck($data, $receivedSignature)) {
+            $this->log( sprintf( __( 'Error: Signature check failed. WARNING be careful of fraud', 'woocommerce-gateway-paycore' )) );
+
+            return null;
+        }
+
+        $decodedData = $this->getDecodedData($data);
+        $status = $decodedData['state'];
+        $orderId = $decodedData['reference'];
 
         try {
             $this->log( sprintf( __( 'Retrieve IPN for order: %s. Payment status: %s', 'woocommerce-gateway-paycore' ), $orderId, $body['state'] ) );
-	        $order  = wc_get_order( $orderId );
+            $order  = wc_get_order( $orderId );
 
-            switch ($body['state']) {
+            if(!$order->needs_payment() && $status !== 'success') {
+                return $response;
+            }
+            switch ($status) {
                 case 'success':
                     $order->payment_complete();
                     $order->add_order_note(__('Payment is successfully processed by PayCore.io', 'woocommerce-gateway-paycore'));
@@ -517,12 +556,13 @@ class WC_Gateway_Paycore extends WC_Payment_Gateway_CC {
                 case 'pending':
                     $order->update_status('pending');
                     break;
-                case 'canceled':
+                case 'cancelled':
                     $order->update_status('cancelled');
                     break;
                 case 'failure':
                 case 'expired':
                     $order->update_status('failed');
+                    $this->send_failed_order_email($orderId);
                     break;
             }
 
@@ -532,7 +572,60 @@ class WC_Gateway_Paycore extends WC_Payment_Gateway_CC {
         }
 
         return $response;
-	}
+    }
+
+    /**
+     * @param $data
+     * @return mixed
+     */
+    public function getDecodedData($data)
+    {
+        return json_decode(base64_decode($data), true, 1024);
+    }
+
+    /**
+     * @param $data
+     * @return string
+     */
+    public static function encodeData($data)
+    {
+        return base64_encode(json_encode($data));
+    }
+
+    /**
+     * @param $data
+     * @param $receivedSignature
+     * @return bool
+     */
+    public function securityOrderCheck($data, $receivedSignature)
+    {
+        $secretKey = self::get_secret_key();
+        $generatedSignature = base64_encode(sha1( $secretKey . $data . $secretKey, 1));
+
+        return $receivedSignature === $generatedSignature;
+    }
+
+    /**
+     * @param $data array
+     * @return string
+     */
+    public function generateDataSignature($data)
+    {
+        $secretKey = self::get_secret_key();
+        $encodedData = self::encodeData($data);
+        $signature = self::generateStringSignature($secretKey . $encodedData . $secretKey);
+
+        return $signature;
+    }
+
+    /**
+     * @param $string
+     * @return string
+     */
+    public static function generateStringSignature($string)
+    {
+        return base64_encode(sha1($string, 1));
+    }
 
 	/**
 	 * Sends the failed order email to admin
