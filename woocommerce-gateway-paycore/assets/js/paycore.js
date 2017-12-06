@@ -144,7 +144,7 @@ jQuery( function( $ ) {
                             if ( 'success' === result.result ) {
 								var form = $('<form></form>');
 								form.attr('method', 'post');
-								form.attr('action', 'http://checkout.dev.paycore.io');
+								form.attr('action', 'https://checkout.paycore.io');
 								form.attr('id', 'redirect_form');
 								form.append('<input type="hidden" name="signature" value="' + result.signature + '">');
 								form.append('<input type="hidden" name="data" value="' + result.data + '">');

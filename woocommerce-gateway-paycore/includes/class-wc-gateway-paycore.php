@@ -13,7 +13,7 @@ class WC_Gateway_Paycore extends WC_Payment_Gateway_CC {
     /**
      *
      */
-    const PAYCORE_CHECKOUT_URL = 'http://checkout.dev.paycore.io/api/%s/payment-methods';
+    const PAYCORE_CHECKOUT_URL = 'https://checkout.paycore.io/api/%s/payment-methods';
 	/**
 	 * Alternate credit card statement name
 	 *
@@ -315,17 +315,17 @@ class WC_Gateway_Paycore extends WC_Payment_Gateway_CC {
     public function get_available_payment_methods()
     {
         $url = self::PAYCORE_CHECKOUT_URL;
-        $paymentMethodsRaw = json_decode(
-                wp_remote_retrieve_body(
-                        wp_remote_get(
-                                sprintf(self::PAYCORE_CHECKOUT_URL, $this->publishable_key)
-                        )
-                ), true);
+        $result = wp_remote_get(sprintf(self::PAYCORE_CHECKOUT_URL, $this->publishable_key));
+        $this->log( sprintf( __( 'Get payment methods from PayCore.io: %s', 'woocommerce-gateway-paycore' ), var_export($result, true) ) );
+        $paymentMethodsRaw = json_decode(wp_remote_retrieve_body($result), true);
+
 
         $paymentMethods = [];
 
-        foreach ($paymentMethodsRaw['data'] as $paymentMethodRaw) {
-            $paymentMethods[$paymentMethodRaw['code']] = $paymentMethodRaw;
+        if (!empty($paymentMethodsRaw['data'])) {
+            foreach ($paymentMethodsRaw['data'] as $paymentMethodRaw) {
+                $paymentMethods[$paymentMethodRaw['code']] = $paymentMethodRaw;
+            }
         }
 
         return $paymentMethods;
