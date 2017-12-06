@@ -9,7 +9,7 @@
 Take cashless payments on your store using PayCore.io.
 
 ## Description ##
-To accept payment you need create an account on 
+To accept payment you need create an account on [PayCore.io](https://dashboard.paycore.io).
 Accept all payment methods available for your PayCore.io account directly on your Checkout page with the PayCore.io payment gateway for WooCommerce.
 
 ## Take cashless payments easily on your store ##
