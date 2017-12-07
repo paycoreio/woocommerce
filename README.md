@@ -28,7 +28,7 @@ favourites to be shown on WooCommerce checkout page.
 
 Please note, this gateway requires WooCommerce 2.5 and above.
 
-## Manual installation ##
+### Manual installation ###
 
 The manual installation method involves downloading our plugin and uploading it to your web server via your favorite FTP application. The WordPress codex contains [instructions on how to do this here](http://codex.wordpress.org/Managing_Plugins#Manual_Plugin_Installation).
 
@@ -39,8 +39,8 @@ After installing and enabling plugin, you should provide keys:
 4. Click "Save Changes" button to load payment methods.
 5. You can choose favourites payment methods, which will be shown on WooCommerce checkout page.
 
-## Installation via WP installer ##
+### Installation via WP installer ###
 
-You need to download PayCore.io plugin as zip archive and go to WordPress admin page Plugins->Add new->Upload plugin and specify path to downloaded .zip file and click Install button
+You need to download PayCore.io plugin as zip archive [(check releases)](https://github.com/paycoreio/woocommerce/releases) and go to WordPress admin page Plugins->Add new->Upload plugin and specify path to downloaded .zip file and click Install button
 
 
